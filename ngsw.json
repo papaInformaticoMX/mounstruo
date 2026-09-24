@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1790274220932,
+  "timestamp": 1790274744240,
   "index": "/mounstruo/index.csr.html",
   "assetGroups": [
     {
@@ -51,8 +51,8 @@
     "/mounstruo/icons/icon-512x512.png": "e2dcf8acfefad2294ca6fd7ab0e48373b7bc9d72",
     "/mounstruo/icons/icon-72x72.png": "aa88a6096bd973be7f6d7a5489bfa6bc2463f8c4",
     "/mounstruo/icons/icon-96x96.png": "7fb8f59c30ce2ff12c700321a0b39e14b3dc8f95",
-    "/mounstruo/index.csr.html": "6874e734d89696b8cf28bf4f449b508b8ffb7b26",
-    "/mounstruo/index.html": "336fed4e327e152bb36ab2b888fbc73957a9bf8e",
+    "/mounstruo/index.csr.html": "cbacbc44ebfe8749ce334f96c6c28d027249a27e",
+    "/mounstruo/index.html": "1294cb878612f4ffa0411503a1ab101cdc459465",
     "/mounstruo/main-KWCHY66W.js": "cb6cae7d591d0fce71a8fe00cdd473f466a370ee",
     "/mounstruo/manifest.webmanifest": "4c28700b07d64f9387c2f9d561fa26cd89edb5ec",
     "/mounstruo/styles-AQ6Y4VJ3.css": "acfebecf0c8dcef92924bf2e1497301bd2dcbc26"
