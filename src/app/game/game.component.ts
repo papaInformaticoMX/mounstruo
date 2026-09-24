@@ -59,7 +59,7 @@ export class GameComponent {
   ];
 
   /** Números que el niño puede elegir como respuesta. */
-  protected readonly numerosDisponibles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  protected readonly numerosDisponibles = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   /** Color de cada botón numérico, para reconocerlo de lejos. */
   protected readonly colorDelNumero: Record<number, string> = {
@@ -196,7 +196,7 @@ export class GameComponent {
   }
 
   private generarCantidadAleatoria(): number {
-    return Math.floor(Math.random() * 5) + 1;
+    return Math.floor(Math.random() * 8) + 1;
   }
 
   private elegirFrutaAleatoria(): string {
