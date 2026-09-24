@@ -30,11 +30,11 @@ export class GameComponent {
   mensajeFeedback = computed(() => {
     switch (this.estadoFeedback()) {
       case 'acierto':
-        return '🎉 ¡MUY BIEN! ¡El monstruo está feliz! 🎉';
+        return '🎉 ¡MUY BIEN! 🎉';
       case 'error':
-        return '💪 ¡Casi! Cuenta de nuevo e inténtalo';
+        return '💪 ¡Casi! inténtalo de nuevo';
       default:
-        return '🤔 ¿Cuántas frutas ves? ¡Cuéntalas y elige el número!';
+        return '🤔 ¿Cuántas frutas ves? ';
     }
   });
 
