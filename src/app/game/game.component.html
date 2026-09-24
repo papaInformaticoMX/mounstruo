@@ -1,35 +1,79 @@
-﻿<div class="score-display">
+<!-- Marcador de puntos -->
+<div class="absolute top-4 right-5 rounded-full bg-fruta-amarillo px-4 py-2 font-bold text-slate-800">
   ⭐ Puntos: {{ puntuacion() }}
 </div>
 
-<app-monster [estaFeliz]="estadoFeedback() === 'acierto'" />
+<!-- Encender o silenciar la voz del juego -->
+<button
+  type="button"
+  class="absolute top-4 left-5 rounded-full bg-slate-100 px-3 py-2 text-xl transition hover:scale-110"
+  (click)="alternarVoz()"
+  [attr.aria-pressed]="vozActiva()"
+  [attr.aria-label]="vozActiva() ? 'Silenciar la voz' : 'Activar la voz'"
+>
+  {{ vozActiva() ? '🔊' : '🔇' }}
+</button>
 
-<div class="fruits-area">
-  @for (fruta of listaFrutas(); track $index) {
-    <span class="fruit" [style.animation-delay]="$index * 0.1 + 's'">
+<!-- El monstruo se pone feliz cuando el niño acierta -->
+<app-monster [estaFeliz]="celebrando()" />
+
+<!-- Frutas que hay que contar -->
+<div
+  class="m-5 flex min-h-38 flex-wrap items-center justify-center gap-4 rounded-3xl border-4 border-dashed border-sky-300 bg-sky-50 p-5"
+>
+  @for (fruta of listaFrutas(); track ronda() + '-' + $index) {
+    <span
+      class="cursor-default text-6xl animate-rebotar transition duration-300 hover:rotate-12 hover:scale-125"
+      [style.animation-delay]="$index * 0.1 + 's'"
+    >
       {{ fruta }}
     </span>
   }
 </div>
 
-<div class="feedback-message" [class]="claseFeedback()">
+<!-- Pregunta o mensaje de resultado (también se lee en voz alta) -->
+<div
+  role="status"
+  aria-live="polite"
+  class="flex min-h-13 items-center justify-center rounded-2xl p-2.5 text-2xl {{ clasesMensaje() }}"
+>
   {{ mensajeFeedback() }}
 </div>
 
-<div class="numbers-container">
+<!-- Botones con los números del 1 al 5 -->
+<div class="m-6 flex flex-wrap justify-center gap-4">
   @for (numero of numerosDisponibles; track numero) {
     <button
-      class="number-button"
+      type="button"
+      class="size-18 rounded-full text-3xl font-bold shadow-lg transition duration-300 hover:scale-110 hover:shadow-xl active:scale-95 disabled:pointer-events-none disabled:opacity-50 {{ colorDelNumero[numero] }}"
+      [disabled]="celebrando()"
       (click)="seleccionarNumero(numero)"
-      [disabled]="estadoFeedback() === 'acierto'"
+      [attr.aria-label]="'Responder ' + numero"
     >
       {{ numero }}
     </button>
   }
 </div>
 
-@if (estadoFeedback() === 'acierto') {
-  <button class="next-button" (click)="siguienteRonda()">
+<!-- Salta a la siguiente pregunta sin esperar a que acabe la celebración -->
+@if (celebrando()) {
+  <button
+    type="button"
+    class="mt-4 rounded-full bg-gradient-to-r from-fruta-rojo to-fruta-amarillo px-10 py-4 text-xl font-bold text-white shadow-lg shadow-red-400/40 transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+    (click)="siguienteRonda()"
+  >
     🚀 ¡Siguiente ronda!
   </button>
+}
+
+<!-- Confeti de la celebración (decorativo, no bloquea clics) -->
+@for (pieza of confeti(); track pieza.id) {
+  <div
+    class="pointer-events-none fixed -top-3 size-2.5 animate-caer"
+    [class.rounded-full]="pieza.esRedonda"
+    [style.left.%]="pieza.izquierda"
+    [style.background-color]="pieza.color"
+    [style.animation-delay.s]="pieza.retardo"
+    aria-hidden="true"
+  ></div>
 }

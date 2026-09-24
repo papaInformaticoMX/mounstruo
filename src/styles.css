@@ -1,180 +1,58 @@
-﻿@import 'tailwindcss';
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@import 'tailwindcss';
+
+/*
+  Paleta y animaciones del juego, definidas como "design tokens" de Tailwind.
+  Gracias a esto las plantillas usan clases legibles como `bg-fruta-rojo`
+  o `animate-rebotar` en lugar de CSS suelto.
+*/
+@theme {
+  /* Colores de las frutas, reutilizados en botones, monstruo y confeti. */
+  --color-fruta-rojo: #ff6b6b;
+  --color-fruta-amarillo: #ffd93d;
+  --color-fruta-verde: #6bcf7f;
+  --color-fruta-turquesa: #4ecdc4;
+  --color-fruta-morado: #a29bfe;
+
+  /* Animaciones del juego (los pasos están en los @keyframes de abajo). */
+  --animate-rebotar: rebotar 0.6s ease-in-out;
+  --animate-celebrar: celebrar 0.5s ease;
+  --animate-sacudir: sacudir 0.5s ease;
+  --animate-saltar: saltar 0.6s ease;
+  --animate-caer: caer 3s linear forwards;
+
+  @keyframes rebotar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  @keyframes celebrar {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+
+  @keyframes sacudir {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+  }
+
+  @keyframes saltar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px) scale(1.1); }
+  }
+
+  @keyframes caer {
+    to { transform: translateY(100vh) rotate(720deg); }
+  }
 }
 
-body {
-  font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-}
+/* Fondo del juego: cubre toda la pantalla. El confeti es position:fixed,
+   así que solo hay que recortar el desplazamiento horizontal. */
+@layer base {
+  body {
+    font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 
-.game-container {
-  background: white;
-  border-radius: 30px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  max-width: 600px;
-  width: 90%;
-  position: relative;
-}
-
-.game-title {
-  font-size: 2.5rem;
-  color: #ff6b6b;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 0px #ffd93d;
-}
-
-.fruits-area {
-  min-height: 150px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
-  padding: 20px;
-  margin: 20px 0;
-  background: #f0f8ff;
-  border-radius: 20px;
-  border: 3px dashed #74b9ff;
-}
-
-.fruit {
-  font-size: 4rem;
-  animation: bounce 0.6s ease-in-out;
-  cursor: default;
-  transition: transform 0.3s;
-}
-
-.fruit:hover {
-  transform: scale(1.2) rotate(10deg);
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
-
-.numbers-container {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin: 25px 0;
-  flex-wrap: wrap;
-}
-
-.number-button {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  border: none;
-  font-size: 2rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: inherit;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.number-button:hover {
-  transform: scale(1.15);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-.number-button:active {
-  transform: scale(0.95);
-}
-
-.number-button:nth-child(1) { background: #ff6b6b; color: white; }
-.number-button:nth-child(2) { background: #ffd93d; color: #333; }
-.number-button:nth-child(3) { background: #6bcf7f; color: white; }
-.number-button:nth-child(4) { background: #4ecdc4; color: white; }
-.number-button:nth-child(5) { background: #a29bfe; color: white; }
-
-.feedback-message {
-  font-size: 1.5rem;
-  margin: 15px 0;
-  min-height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 15px;
-  padding: 10px;
-}
-
-.feedback-message.success {
-  background: #d4edda;
-  color: #155724;
-  animation: celebrate 0.5s ease;
-}
-
-.feedback-message.try-again {
-  background: #fff3cd;
-  color: #856404;
-  animation: shake 0.5s ease;
-}
-
-@keyframes celebrate {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
-}
-
-.next-button {
-  background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-  color: white;
-  border: none;
-  padding: 15px 40px;
-  font-size: 1.3rem;
-  border-radius: 50px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: bold;
-  box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
-  transition: all 0.3s;
-  margin-top: 15px;
-}
-
-.next-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(255, 107, 107, 0.6);
-}
-
-.score-display {
-  position: absolute;
-  top: 15px;
-  right: 20px;
-  background: #ffd93d;
-  padding: 8px 15px;
-  border-radius: 20px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #333;
-}
-
-.confetti {
-  position: fixed;
-  width: 10px;
-  height: 10px;
-  top: -10px;
-  animation: fall 3s linear forwards;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(100vh) rotate(720deg);
+    @apply flex min-h-screen items-center justify-center overflow-x-clip py-6;
   }
 }

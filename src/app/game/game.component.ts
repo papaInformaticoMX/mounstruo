@@ -1,92 +1,178 @@
-﻿import { Component, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { MonsterComponent } from '../monster/monster.component';
+import { SpeechService } from '../services/speech.service';
+
+/** Una pieza de confeti que cae por la pantalla durante la celebración. */
+interface PiezaConfeti {
+  readonly id: number;
+  /** Posición horizontal, en % del ancho de la pantalla. */
+  readonly izquierda: number;
+  readonly color: string;
+  /** Segundos de espera antes de empezar a caer. */
+  readonly retardo: number;
+  /** true = círculo, false = cuadrado. */
+  readonly esRedonda: boolean;
+}
+
+/** Qué le está mostrando el juego al niño en este momento. */
+type EstadoJuego = 'pregunta' | 'acierto' | 'error';
+
+/** Cuántas piezas de confeti caen en cada celebración. */
+const PIEZAS_DE_CONFETI = 30;
+
+/** Cuánto dura la celebración antes de pasar a la siguiente pregunta. */
+const DURACION_CELEBRACION_MS = 3500;
 
 @Component({
   selector: 'app-game',
-  standalone: true,
-  imports: [CommonModule, MonsterComponent],
+  imports: [MonsterComponent],
   templateUrl: './game.component.html',
 })
 export class GameComponent {
-  cantidadFrutas = signal<number>(this.generarCantidadAleatoria());
-  numeroSeleccionado = signal<number | null>(null);
-  estadoFeedback = signal<'ninguno' | 'acierto' | 'error'>('ninguno');
-  puntuacion = signal<number>(0);
-  readonly numerosDisponibles = [1, 2, 3, 4, 5];
-  private readonly frutas = ['🍎', '🍊', '🍋', '🍇', '🍓'];
-  frutaActual = signal<string>(this.seleccionarFrutaAleatoria());
+  private readonly voz = inject(SpeechService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  esAcierto = computed(() =>
-    this.numeroSeleccionado() === this.cantidadFrutas()
-  );
+  private readonly frutasDisponibles = ['🍎', '🍊', '🍋', '🍇', '🍓'];
+  private readonly coloresConfeti = ['#ff6b6b', '#ffd93d', '#6bcf7f', '#4ecdc4', '#a29bfe'];
 
-  listaFrutas = computed(() => {
+  /** Números que el niño puede elegir como respuesta. */
+  protected readonly numerosDisponibles = [1, 2, 3, 4, 5];
+
+  /** Color de cada botón numérico, para reconocerlo de lejos. */
+  protected readonly colorDelNumero: Record<number, string> = {
+    1: 'bg-fruta-rojo text-white',
+    2: 'bg-fruta-amarillo text-amber-900',
+    3: 'bg-fruta-verde text-white',
+    4: 'bg-fruta-turquesa text-white',
+    5: 'bg-fruta-morado text-white',
+  };
+
+  protected readonly cantidadFrutas = signal(this.generarCantidadAleatoria());
+  protected readonly frutaActual = signal(this.elegirFrutaAleatoria());
+  protected readonly puntuacion = signal(0);
+  protected readonly estado = signal<EstadoJuego>('pregunta');
+  protected readonly confeti = signal<PiezaConfeti[]>([]);
+
+  /**
+   * Número de la ronda actual. Cambia con cada pregunta nueva y sirve
+   * para que las frutas se vuelvan a dibujar (y reboten) desde cero.
+   */
+  protected readonly ronda = signal(0);
+
+  /** Frutas que se muestran: una por cada unidad que hay que contar. */
+  protected readonly listaFrutas = computed(() => {
     const cantidad = this.cantidadFrutas();
     const fruta = this.frutaActual();
     return Array.from({ length: cantidad }, () => fruta);
   });
 
-  mensajeFeedback = computed(() => {
-    switch (this.estadoFeedback()) {
+  /** Texto que se muestra (y se lee en voz alta) según el estado. */
+  protected readonly mensajeFeedback = computed(() => {
+    switch (this.estado()) {
       case 'acierto':
         return '🎉 ¡MUY BIEN! 🎉';
       case 'error':
-        return '💪 ¡Casi! inténtalo de nuevo';
+        return '💪 ¡Casi! Inténtalo de nuevo';
       default:
-        return '🤔 ¿Cuántas frutas ves? ';
+        return '🤔 ¿Cuántas frutas ves?';
     }
   });
 
-  claseFeedback = computed(() => {
-    switch (this.estadoFeedback()) {
-      case 'acierto': return 'success';
-      case 'error': return 'try-again';
-      default: return '';
+  /** Color del mensaje de feedback según el estado. */
+  protected readonly clasesMensaje = computed(() => {
+    switch (this.estado()) {
+      case 'acierto':
+        return 'bg-green-100 text-green-800 animate-celebrar';
+      case 'error':
+        return 'bg-amber-100 text-amber-800 animate-sacudir';
+      default:
+        return 'text-slate-600';
     }
   });
 
-  seleccionarNumero(numero: number): void {
-    this.numeroSeleccionado.set(numero);
+  protected readonly celebrando = computed(() => this.estado() === 'acierto');
+  protected readonly vozActiva = this.voz.vozActiva;
+
+  private temporizadorCelebracion?: ReturnType<typeof setTimeout>;
+  private idConfeti = 0;
+
+  constructor() {
+    this.voz.hablar(this.mensajeFeedback()); // lee la primera pregunta
+
+    this.destroyRef.onDestroy(() => {
+      clearTimeout(this.temporizadorCelebracion);
+      this.voz.detener();
+    });
+  }
+
+  /** El niño toca uno de los botones numéricos. */
+  protected seleccionarNumero(numero: number): void {
+    if (this.celebrando()) {
+      return; // durante la celebración se ignoran nuevos intentos
+    }
 
     if (numero === this.cantidadFrutas()) {
-      this.estadoFeedback.set('acierto');
-      this.puntuacion.update(p => p + 1);
-      this.lanzarConfeti();
+      this.registrarAcierto();
     } else {
-      this.estadoFeedback.set('error');
+      this.estado.set('error');
+      this.voz.hablar(this.mensajeFeedback());
     }
   }
 
-  siguienteRonda(): void {
+  /** Genera una nueva pregunta: fruta y cantidad al azar. */
+  protected siguienteRonda(): void {
+    clearTimeout(this.temporizadorCelebracion);
+
     this.cantidadFrutas.set(this.generarCantidadAleatoria());
-    this.frutaActual.set(this.seleccionarFrutaAleatoria());
-    this.numeroSeleccionado.set(null);
-    this.estadoFeedback.set('ninguno');
+    this.frutaActual.set(this.elegirFrutaAleatoria());
+    this.estado.set('pregunta');
+    this.ronda.update(numero => numero + 1);
+    this.confeti.set([]);
+    this.voz.hablar(this.mensajeFeedback()); // lee la nueva pregunta
+  }
+
+  /** Enciende o apaga la voz del juego. */
+  protected alternarVoz(): void {
+    this.voz.alternarVoz();
+  }
+
+  private registrarAcierto(): void {
+    this.estado.set('acierto');
+    this.puntuacion.update(puntos => puntos + 1);
+    this.voz.hablar(this.mensajeFeedback());
+    this.lanzarConfeti();
+    this.programarSiguienteRonda();
+  }
+
+  /**
+   * Espera a que termine la celebración y arranca la siguiente ronda
+   * automáticamente, para que el niño no dependa de leer ningún botón.
+   */
+  private programarSiguienteRonda(): void {
+    this.temporizadorCelebracion = setTimeout(
+      () => this.siguienteRonda(),
+      DURACION_CELEBRACION_MS,
+    );
+  }
+
+  private lanzarConfeti(): void {
+    const piezas: PiezaConfeti[] = Array.from({ length: PIEZAS_DE_CONFETI }, () => ({
+      id: this.idConfeti++,
+      izquierda: Math.random() * 100,
+      color: this.coloresConfeti[Math.floor(Math.random() * this.coloresConfeti.length)],
+      retardo: Math.random(), // hasta 1 segundo de espera
+      esRedonda: Math.random() > 0.5,
+    }));
+
+    this.confeti.set(piezas);
   }
 
   private generarCantidadAleatoria(): number {
     return Math.floor(Math.random() * 5) + 1;
   }
 
-  private seleccionarFrutaAleatoria(): string {
-    const indice = Math.floor(Math.random() * this.frutas.length);
-    return this.frutas[indice];
-  }
-
-  private lanzarConfeti(): void {
-    const colores = ['#ff6b6b', '#ffd93d', '#6bcf7f', '#4ecdc4', '#a29bfe'];
-
-    for (let i = 0; i < 30; i++) {
-      const confeti = document.createElement('div');
-      confeti.className = 'confetti';
-      confeti.style.left = Math.random() * 100 + 'vw';
-      confeti.style.backgroundColor = colores[Math.floor(Math.random() * colores.length)];
-      confeti.style.animationDelay = Math.random() * 2 + 's';
-      confeti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
-      document.body.appendChild(confeti);
-
-      setTimeout(() => confeti.remove(), 3000);
-    }
+  private elegirFrutaAleatoria(): string {
+    const indice = Math.floor(Math.random() * this.frutasDisponibles.length);
+    return this.frutasDisponibles[indice];
   }
 }

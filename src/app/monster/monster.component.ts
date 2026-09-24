@@ -1,112 +1,46 @@
-﻿import { Component, input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, input } from '@angular/core';
 
+/**
+ * El monstruo mascota del juego. Cuando el niño acierta se pone feliz:
+ * salta, muestra los dientes y cambia su mensaje.
+ */
 @Component({
   selector: 'app-monster',
-  standalone: true,
-  imports: [CommonModule],
   template: `
-    <div class="monster" [class.happy]="estaFeliz()">
-      <div class="monster-body">
-        <div class="monster-eyes">
-          <div class="eye left">
-            <div class="pupil"></div>
+    <div class="my-3 text-center" [class.animate-saltar]="estaFeliz()">
+      <div
+        class="relative mx-auto h-25 w-30 rounded-[50%_50%_40%_40%] bg-gradient-to-br from-fruta-verde to-emerald-500 shadow-lg shadow-emerald-500/40"
+        aria-hidden="true"
+      >
+        <div class="flex justify-center gap-5 pt-5">
+          <div class="flex size-6 items-center justify-center rounded-full bg-white">
+            <div class="size-3 rounded-full bg-slate-700"></div>
           </div>
-          <div class="eye right">
-            <div class="pupil"></div>
+          <div class="flex size-6 items-center justify-center rounded-full bg-white">
+            <div class="size-3 rounded-full bg-slate-700"></div>
           </div>
         </div>
 
-        <div class="monster-mouth">
+        <div
+          class="mx-auto mt-2.5 flex h-6 w-13 items-center justify-center overflow-hidden rounded-b-[50%] bg-[#c0392b]"
+        >
           @if (estaFeliz()) {
-            <span class="teeth">🦷 🦷 🦷</span>
+            <span class="text-xs">🦷 🦷 🦷</span>
           }
         </div>
       </div>
 
-      <div class="monster-speech">
+      <p class="mt-3 text-lg text-slate-600 italic">
         @if (estaFeliz()) {
-          <p>¡ÑAM ÑAM! ¡Qué rico! 😋</p>
+          ¡ÑAM ÑAM! ¡Qué rico! 😋
         } @else {
-          <p>¡Tengo hambre de frutas! 🤤</p>
+          ¡Tengo hambre de frutas! 🤤
         }
-      </div>
+      </p>
     </div>
   `,
-  styles: [`
-    .monster {
-      margin: 10px auto;
-      text-align: center;
-      transition: transform 0.3s;
-    }
-
-    .monster.happy {
-      animation: monsterJump 0.6s ease;
-    }
-
-    .monster-body {
-      width: 120px;
-      height: 100px;
-      background: linear-gradient(135deg, #6bcf7f, #2ecc71);
-      border-radius: 50% 50% 40% 40%;
-      margin: 0 auto;
-      position: relative;
-      box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
-    }
-
-    .monster-eyes {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      padding-top: 20px;
-    }
-
-    .eye {
-      width: 25px;
-      height: 25px;
-      background: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .pupil {
-      width: 12px;
-      height: 12px;
-      background: #333;
-      border-radius: 50%;
-    }
-
-    .monster-mouth {
-      width: 50px;
-      height: 25px;
-      background: #c0392b;
-      border-radius: 0 0 50% 50%;
-      margin: 10px auto 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    .teeth {
-      font-size: 0.7rem;
-    }
-
-    .monster-speech {
-      margin-top: 10px;
-      font-size: 1.1rem;
-      color: #555;
-      font-style: italic;
-    }
-
-    @keyframes monsterJump {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px) scale(1.1); }
-    }
-  `]
 })
 export class MonsterComponent {
-  estaFeliz = input<boolean>(false);
+  /** El monstruo celebra cuando el jugador acierta. */
+  readonly estaFeliz = input(false);
 }
