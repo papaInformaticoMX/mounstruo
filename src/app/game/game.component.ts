@@ -36,11 +36,9 @@ export class GameComponent {
     '🍎', // 1  - Manzana roja
     '🍊', // 2  - Mandarina/Naranja
     '🍋', // 3  - Limón
-    '🍇', // 4  - Uvas
     '🍓', // 5  - Fresa
     '🍉', // 6  - Sandía
     '🍌', // 7  - Plátano
-    '🍒', // 8  - Cerezas
     '🍑', // 9  - Durazno
     '🍍', // 10 - Piña
   ];
