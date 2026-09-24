@@ -76,7 +76,7 @@ export class GameComponent {
 
   protected readonly cantidadFrutas = signal(this.generarCantidadAleatoria());
   protected readonly frutaActual = signal(this.elegirFrutaAleatoria());
-  protected readonly puntuacion = signal(0);
+  protected readonly puntuacion = this.statsService.puntuacion;
   protected readonly estado = signal<EstadoJuego>('pregunta');
   protected readonly confeti = signal<PiezaConfeti[]>([]);
 
@@ -127,6 +127,10 @@ export class GameComponent {
   private idConfeti = 0;
 
   constructor() {
+    if (this.statsService.todosDominados()) {
+      this.estado.set('dominado');
+    }
+    
     this.voz.hablar(this.mensajeFeedback()); // lee la primera pregunta
 
     this.destroyRef.onDestroy(() => {
@@ -171,13 +175,13 @@ export class GameComponent {
     const todosDominados = this.statsService.registrarAcierto(this.cantidadFrutas());
     if (todosDominados) {
       this.estado.set('dominado');
-      this.puntuacion.update(puntos => puntos + 1);
+      this.statsService.incrementarPuntuacion();
       this.voz.hablar(this.mensajeFeedback());
       this.lanzarConfeti();
       // El juego se detiene aquí y espera a que el usuario presione "Reiniciar"
     } else {
       this.estado.set('acierto');
-      this.puntuacion.update(puntos => puntos + 1);
+      this.statsService.incrementarPuntuacion();
       this.voz.hablar(this.mensajeFeedback());
       this.lanzarConfeti();
       this.programarSiguienteRonda();
@@ -186,7 +190,6 @@ export class GameComponent {
 
   protected reiniciarJuego(): void {
     this.statsService.reiniciarJuego();
-    this.puntuacion.set(0);
     this.siguienteRonda();
   }
 

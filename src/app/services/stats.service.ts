@@ -13,16 +13,27 @@ export interface NumberStats {
 })
 export class StatsService {
   private readonly STORAGE_KEY = 'mounstruo_stats';
+  private readonly PUNTOS_KEY = 'mounstruo_puntos';
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   
   public readonly stats = signal<Record<number, NumberStats>>(this.loadStats());
+  public readonly puntuacion = signal<number>(this.loadPuntos());
 
   constructor() {
     effect(() => {
       if (this.isBrowser) {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.stats()));
+        localStorage.setItem(this.PUNTOS_KEY, this.puntuacion().toString());
       }
     });
+  }
+
+  private loadPuntos(): number {
+    if (this.isBrowser) {
+      const p = localStorage.getItem(this.PUNTOS_KEY);
+      if (p) return parseInt(p, 10) || 0;
+    }
+    return 0;
   }
 
   private loadStats(): Record<number, NumberStats> {
@@ -78,6 +89,11 @@ export class StatsService {
       defaultStats[i] = { numero: i, aciertos: 0, fallas: 0, dominado: false };
     }
     this.stats.set(defaultStats);
+    this.puntuacion.set(0);
+  }
+
+  incrementarPuntuacion(): void {
+    this.puntuacion.update(p => p + 1);
   }
 
   registrarFalla(numero: number) {
