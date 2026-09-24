@@ -32,19 +32,47 @@ export class GameComponent {
   private readonly voz = inject(SpeechService);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly frutasDisponibles = ['🍎', '🍊', '🍋', '🍇', '🍓'];
-  private readonly coloresConfeti = ['#ff6b6b', '#ffd93d', '#6bcf7f', '#4ecdc4', '#a29bfe'];
+  private readonly frutasDisponibles = [
+    '🍎', // 1  - Manzana roja
+    '🍊', // 2  - Mandarina/Naranja
+    '🍋', // 3  - Limón
+    '🍇', // 4  - Uvas
+    '🍓', // 5  - Fresa
+    '🍉', // 6  - Sandía
+    '🍌', // 7  - Plátano
+    '🍒', // 8  - Cerezas
+    '🍑', // 9  - Durazno
+    '🍍', // 10 - Piña
+  ];
+
+  private readonly coloresConfeti = [
+    '#FF6B6B', // 1  - Rojo coral
+    '#FF9F43', // 2  - Naranja durazno
+    '#FFD93D', // 3  - Amarillo dorado
+    '#A8E063', // 4  - Verde lima suave
+    '#6BCF7F', // 5  - Verde menta
+    '#4ECDC4', // 6  - Turquesa
+    '#4DACFF', // 7  - Azul cielo
+    '#5B8DEF', // 8  - Azul índigo
+    '#A29BFE', // 9  - Lavanda
+    '#FF6FB5', // 10 - Rosa chicle
+  ];
 
   /** Números que el niño puede elegir como respuesta. */
-  protected readonly numerosDisponibles = [1, 2, 3, 4, 5];
+  protected readonly numerosDisponibles = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   /** Color de cada botón numérico, para reconocerlo de lejos. */
   protected readonly colorDelNumero: Record<number, string> = {
-    1: 'bg-fruta-rojo text-white',
-    2: 'bg-fruta-amarillo text-amber-900',
-    3: 'bg-fruta-verde text-white',
-    4: 'bg-fruta-turquesa text-white',
-    5: 'bg-fruta-morado text-white',
+    1: 'bg-[#FF6B6B] text-white',
+    2: 'bg-[#FF9F43] text-white',
+    3: 'bg-[#FFD93D] text-amber-900',
+    4: 'bg-[#A8E063] text-white',
+    5: 'bg-[#6BCF7F] text-white',
+    6: 'bg-[#4ECDC4] text-white',
+    7: 'bg-[#4DACFF] text-white',
+    8: 'bg-[#5B8DEF] text-white',
+    9: 'bg-[#A29BFE] text-white',
+    10: 'bg-[#FF6FB5] text-white',
   };
 
   protected readonly cantidadFrutas = signal(this.generarCantidadAleatoria());
