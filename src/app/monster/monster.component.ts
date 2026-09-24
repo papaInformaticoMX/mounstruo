@@ -25,7 +25,13 @@ import { Component, input } from '@angular/core';
           class="mx-auto mt-2.5 flex h-6 w-13 items-center justify-center overflow-hidden rounded-b-[50%] bg-[#c0392b]"
         >
           @if (estaFeliz()) {
-            <span class="text-xs">🦷 🦷 🦷</span>
+            <div class="flex flex-col items-center leading-[0.8]">
+              <span class="text-xs inline-block rotate-180">🦷</span>
+              <div class="flex gap-1">
+                <span class="text-xs inline-block">🦷</span>
+                <span class="text-xs inline-block">🦷</span>
+              </div>
+            </div>
           }
         </div>
       </div>
