@@ -1,0 +1,79 @@
+{
+  "configVersion": 1,
+  "timestamp": 1790274220932,
+  "index": "/mounstruo/index.csr.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/mounstruo/favicon.ico",
+        "/mounstruo/index.csr.html",
+        "/mounstruo/index.html",
+        "/mounstruo/main-KWCHY66W.js",
+        "/mounstruo/manifest.webmanifest",
+        "/mounstruo/styles-AQ6Y4VJ3.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/mounstruo/icons/icon-128x128.png",
+        "/mounstruo/icons/icon-144x144.png",
+        "/mounstruo/icons/icon-152x152.png",
+        "/mounstruo/icons/icon-192x192.png",
+        "/mounstruo/icons/icon-384x384.png",
+        "/mounstruo/icons/icon-512x512.png",
+        "/mounstruo/icons/icon-72x72.png",
+        "/mounstruo/icons/icon-96x96.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/mounstruo/favicon.ico": "9c39f434fe1261f68c5e3eefdf734630d99c5670",
+    "/mounstruo/icons/icon-128x128.png": "f912963bdc6d5a38d8f1dd0afbaab2ce8d657acb",
+    "/mounstruo/icons/icon-144x144.png": "b155fd5f2fd5d2ea7760721063003c4cd95fd783",
+    "/mounstruo/icons/icon-152x152.png": "eae6e0f0c8afb8aaae339e2a569b43e9238e5e6c",
+    "/mounstruo/icons/icon-192x192.png": "ba04b95cb5f4e1f8d1accf1e36f8742359a3d817",
+    "/mounstruo/icons/icon-384x384.png": "94a915751ef6c9282df9aea405ad679230631814",
+    "/mounstruo/icons/icon-512x512.png": "e2dcf8acfefad2294ca6fd7ab0e48373b7bc9d72",
+    "/mounstruo/icons/icon-72x72.png": "aa88a6096bd973be7f6d7a5489bfa6bc2463f8c4",
+    "/mounstruo/icons/icon-96x96.png": "7fb8f59c30ce2ff12c700321a0b39e14b3dc8f95",
+    "/mounstruo/index.csr.html": "6874e734d89696b8cf28bf4f449b508b8ffb7b26",
+    "/mounstruo/index.html": "336fed4e327e152bb36ab2b888fbc73957a9bf8e",
+    "/mounstruo/main-KWCHY66W.js": "cb6cae7d591d0fce71a8fe00cdd473f466a370ee",
+    "/mounstruo/manifest.webmanifest": "4c28700b07d64f9387c2f9d561fa26cd89edb5ec",
+    "/mounstruo/styles-AQ6Y4VJ3.css": "acfebecf0c8dcef92924bf2e1497301bd2dcbc26"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
