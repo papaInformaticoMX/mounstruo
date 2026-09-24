@@ -1,0 +1,35 @@
+﻿<div class="score-display">
+  ⭐ Puntos: {{ puntuacion() }}
+</div>
+
+<app-monster [estaFeliz]="estadoFeedback() === 'acierto'" />
+
+<div class="fruits-area">
+  @for (fruta of listaFrutas(); track $index) {
+    <span class="fruit" [style.animation-delay]="$index * 0.1 + 's'">
+      {{ fruta }}
+    </span>
+  }
+</div>
+
+<div class="feedback-message" [class]="claseFeedback()">
+  {{ mensajeFeedback() }}
+</div>
+
+<div class="numbers-container">
+  @for (numero of numerosDisponibles; track numero) {
+    <button
+      class="number-button"
+      (click)="seleccionarNumero(numero)"
+      [disabled]="estadoFeedback() === 'acierto'"
+    >
+      {{ numero }}
+    </button>
+  }
+</div>
+
+@if (estadoFeedback() === 'acierto') {
+  <button class="next-button" (click)="siguienteRonda()">
+    🚀 ¡Siguiente ronda!
+  </button>
+}
