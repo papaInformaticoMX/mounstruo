@@ -1,7 +1,7 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { MonsterComponent } from '../monster/monster.component';
 import { SpeechService } from '../services/speech.service';
-
+import { StatsService } from '../services/stats.service';
 /** Una pieza de confeti que cae por la pantalla durante la celebración. */
 interface PiezaConfeti {
   readonly id: number;
@@ -15,7 +15,7 @@ interface PiezaConfeti {
 }
 
 /** Qué le está mostrando el juego al niño en este momento. */
-type EstadoJuego = 'pregunta' | 'acierto' | 'error';
+type EstadoJuego = 'pregunta' | 'acierto' | 'error' | 'dominado';
 
 /** Cuántas piezas de confeti caen en cada celebración. */
 const PIEZAS_DE_CONFETI = 30;
@@ -30,6 +30,7 @@ const DURACION_CELEBRACION_MS = 3500;
 })
 export class GameComponent {
   private readonly voz = inject(SpeechService);
+  private readonly statsService = inject(StatsService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly frutasDisponibles = [
@@ -97,6 +98,8 @@ export class GameComponent {
     switch (this.estado()) {
       case 'acierto':
         return '🎉 ¡MUY BIEN! 🎉';
+      case 'dominado':
+        return '🌟 ¡FELICIDADES! Has dominado los números del 1 al 9';
       case 'error':
         return '💪 ¡Casi! Inténtalo de nuevo';
       default:
@@ -108,6 +111,7 @@ export class GameComponent {
   protected readonly clasesMensaje = computed(() => {
     switch (this.estado()) {
       case 'acierto':
+      case 'dominado':
         return 'bg-green-100 text-green-800 animate-celebrar';
       case 'error':
         return 'bg-amber-100 text-amber-800 animate-sacudir';
@@ -116,7 +120,7 @@ export class GameComponent {
     }
   });
 
-  protected readonly celebrando = computed(() => this.estado() === 'acierto');
+  protected readonly celebrando = computed(() => this.estado() === 'acierto' || this.estado() === 'dominado');
   protected readonly vozActiva = this.voz.vozActiva;
 
   private temporizadorCelebracion?: ReturnType<typeof setTimeout>;
@@ -140,6 +144,7 @@ export class GameComponent {
     if (numero === this.cantidadFrutas()) {
       this.registrarAcierto();
     } else {
+      this.statsService.registrarFalla(this.cantidadFrutas());
       this.estado.set('error');
       this.voz.hablar(this.mensajeFeedback());
     }
@@ -163,11 +168,26 @@ export class GameComponent {
   }
 
   private registrarAcierto(): void {
-    this.estado.set('acierto');
-    this.puntuacion.update(puntos => puntos + 1);
-    this.voz.hablar(this.mensajeFeedback());
-    this.lanzarConfeti();
-    this.programarSiguienteRonda();
+    const todosDominados = this.statsService.registrarAcierto(this.cantidadFrutas());
+    if (todosDominados) {
+      this.estado.set('dominado');
+      this.puntuacion.update(puntos => puntos + 1);
+      this.voz.hablar(this.mensajeFeedback());
+      this.lanzarConfeti();
+      // El juego se detiene aquí y espera a que el usuario presione "Reiniciar"
+    } else {
+      this.estado.set('acierto');
+      this.puntuacion.update(puntos => puntos + 1);
+      this.voz.hablar(this.mensajeFeedback());
+      this.lanzarConfeti();
+      this.programarSiguienteRonda();
+    }
+  }
+
+  protected reiniciarJuego(): void {
+    this.statsService.reiniciarJuego();
+    this.puntuacion.set(0);
+    this.siguienteRonda();
   }
 
   /**
@@ -194,7 +214,7 @@ export class GameComponent {
   }
 
   private generarCantidadAleatoria(): number {
-    return Math.floor(Math.random() * 8) + 1;
+    return this.statsService.siguienteNumeroPonderado(this.numerosDisponibles);
   }
 
   private elegirFrutaAleatoria(): string {
